@@ -2761,6 +2761,20 @@
   - medium_complexity | bool
   - medium_disruption | bool
 
+# BEGIN - MERGETB CUSTOMIZATION
+
+- name: "Use RedHat RPM GPG key as the RedHat 'release' key used by this role"
+  file:
+    src: /etc/pki/rpm-gpg/RPM-GPG-KEY-fedora-33-x86_64
+    dest: /etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
+    state: link
+  when: ansible_distribution == 'Fedora'
+  tags:
+    - ensure_redhat_gpgkey_installed
+    - mergetb_fedora33_compatibility
+
+# END - MERGETB CUSTOMIZATION
+
 - name: Read signatures in GPG key
   command: gpg --show-keys --with-fingerprint --with-colons "/etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release"
   args:
@@ -2885,6 +2899,8 @@
   register: repo_grep_results
   ignore_errors: true
   changed_when: false
+  # MERGETB CUSTOMIZATION - Turned off check mode because of https://github.com/ComplianceAsCode/content/issues/6310
+  check_mode: no
   tags:
   - CCE-80792-5
   - CJIS-5.10.4.1
